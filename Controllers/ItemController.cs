@@ -16,7 +16,7 @@ namespace MyApP.Controllers
         public async Task<IActionResult> Index()
         {
             
-            var item = await _context.Items.ToListAsync();
+            var item = await _context.Items.Include(s => s.serialNumber).ToListAsync();
             return View(item);
         }
         public async Task<IActionResult> Create()
