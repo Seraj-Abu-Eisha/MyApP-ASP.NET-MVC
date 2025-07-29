@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyApP.Data;
 using MyApP.Models;
@@ -15,18 +16,22 @@ namespace MyApP.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            
-            var item = await _context.Items.Include(s => s.serialNumber).ToListAsync();
+
+            var item = await _context.Items.Include(s => s.serialNumber)
+                .Include(c => c.category)
+                .ToListAsync();
             return View(item);
         }
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
+            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
+
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id,Name,Price")] Item item)
+        public async Task<IActionResult> Create([Bind("Id,Name,Price, CategoryId")] Item item)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 _context.Items.Add(item);
                 await _context.SaveChangesAsync();
@@ -37,11 +42,13 @@ namespace MyApP.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var item = await _context.Items.FirstOrDefaultAsync(x=>x.Id ==id );
+            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
+
+            var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
             return View(item);
         }
         [HttpPost]
-        public async Task<IActionResult> Edit([Bind("Id,Name,Price")] Item item)
+        public async Task<IActionResult> Edit([Bind("Id,Name,Price,CategoryId ")] Item item)
         {
             if (ModelState.IsValid)
             {
